@@ -1,5 +1,13 @@
 package main
 
+import (
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/beevik/ntp"
+)
+
 /*
 === Базовая задача ===
 
@@ -13,5 +21,14 @@ package main
 */
 
 func main() {
-
+	ti, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
+	t := time.Now()
+	if err != nil {
+		// log.Fatal(err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	fmt.Println("Time which has got from remote machine:", ti)
+	fmt.Println("Time on ps:", t)
+	os.Exit(0)
 }

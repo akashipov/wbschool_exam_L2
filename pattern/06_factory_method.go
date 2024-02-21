@@ -67,7 +67,7 @@ func getDeliveryTransport(n string) (DeliverTransport, error) {
 	case "byfoot":
 		return newByFoot(), nil
 	default:
-		return nil, errors.New("Wrong type of deliver transport")
+		return nil, errors.New("wrong type of deliver transport")
 	}
 }
 
