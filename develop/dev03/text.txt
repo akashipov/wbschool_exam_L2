@@ -1,0 +1,9 @@
+b a yound
+a 24 r 
+a 24 r
+b a t
+c 2 a
+b 17
+b a yound
+b g t
+            c 3 t

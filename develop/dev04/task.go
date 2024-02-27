@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"slices"
+	"strings"
+)
+
 /*
 === Поиск анаграмм по словарю ===
 
@@ -19,6 +25,60 @@ package main
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
+func getKeyFromWord(word string) (string, int) {
+	m := make(map[rune]rune)
+	r := make([]rune, 0)
+	for _, v := range word {
+		_, ok := m[v]
+		if !ok {
+			m[v] = v
+			r = append(r, v)
+		}
+	}
+	slices.Sort(r)
+	a := []rune(word)
+	slices.Sort(a)
+	return string(a), len(r)
+}
 
+func getSetFromArray(a []string) []string {
+	m := make(map[string]string)
+	r := make([]string, 0)
+	for _, v := range a {
+		_, ok := m[v]
+		if !ok {
+			m[v] = v
+			r = append(r, v)
+		}
+	}
+	slices.Sort(r)
+	return r
+}
+
+func getAnagramMap(words []string) map[string][]string {
+	m := make(map[string][]string)
+	firstWordMapping := make(map[string]string)
+	for _, word := range words {
+		word = strings.ToLower(word)
+		wordKey, countLetters := getKeyFromWord(word)
+		if countLetters == 1 {
+			continue
+		}
+		v, ok := firstWordMapping[wordKey]
+		if !ok {
+			firstWordMapping[wordKey] = word
+			m[word] = []string{word}
+		} else {
+			m[v] = append(m[v], word)
+		}
+	}
+	for key := range m {
+		m[key] = getSetFromArray(m[key])
+	}
+	return m
+}
+
+func main() {
+	words := []string{"фис", "сиф", "вба", "абв", "хчы", "Абв", "с"}
+	fmt.Printf("%+v\n", getAnagramMap(words))
 }
