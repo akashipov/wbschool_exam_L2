@@ -49,14 +49,7 @@ func TestShell_errorPrint(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := pathlib.NewPath("./")
-			s := &Shell{
-				PreviousPath: p,
-				CurrentDir:   p,
-				stdin:        os.Stdin,
-				stdout:       os.Stdout,
-				stderr:       os.Stderr,
-			}
+			s := newShell("./")
 			r := s.errorPrint(tt.args.msg)
 			if r != tt.want {
 				t.Errorf("Wanted '%s', but has got '%s'\n", tt.want, r)
@@ -90,7 +83,7 @@ func TestShell_kill(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Shell{
+			s := &shell{
 				PreviousPath: tt.fields.PreviousPath,
 				CurrentDir:   tt.fields.CurrentDir,
 				stdin:        tt.fields.stdin,
@@ -152,7 +145,7 @@ func TestShell_exec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewShell("./")
+			s := newShell("./")
 			args := []string{tt.args.prefix + tt.args.filename}
 			s.exec(args)
 			defer func() {
@@ -233,8 +226,8 @@ func TestShell_Fork(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewShell("./")
-			s.Fork(tt.args.arguments, output, &sync.WaitGroup{})
+			s := newShell("./")
+			s.fork(tt.args.arguments, output, &sync.WaitGroup{})
 			Time := time.Now()
 			r := <-output
 			since := time.Since(Time)
@@ -312,7 +305,7 @@ func TestShell_cd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewShell("./")
+			s := newShell("./")
 			s.cd(tt.args.args)
 			r := make(chan string, 1)
 			s.pwd(r)
@@ -402,7 +395,7 @@ func TestShell_cmd(t *testing.T) {
 			defer func() {
 				os.Stdin = oldstdin
 			}()
-			s := NewShell("./")
+			s := newShell("./")
 			var w sync.WaitGroup
 			w.Add(1)
 			s.cmd(tmpfileIN, &w)

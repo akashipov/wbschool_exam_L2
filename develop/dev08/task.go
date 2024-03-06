@@ -31,7 +31,7 @@ import (
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-type Shell struct {
+type shell struct {
 	PreviousPath *pathlib.Path
 	CurrentDir   *pathlib.Path
 	stdin        io.Reader
@@ -39,7 +39,7 @@ type Shell struct {
 	stderr       io.Writer
 }
 
-func (s *Shell) cd(args []string) {
+func (s *shell) cd(args []string) {
 	// Я мог тут работать с PWD env переменной, но не стал переделывать старый вариант
 	// наверное тут хотели чтобы я работал с подгрузкой переменных через os и изменением их
 	if !s.CurrentDir.IsAbsolute() {
@@ -86,7 +86,7 @@ func (s *Shell) cd(args []string) {
 	}
 }
 
-func (s *Shell) pwd(p chan string) {
+func (s *shell) pwd(p chan string) {
 	f, err := filepath.Abs(s.CurrentDir.String())
 	if err != nil {
 		s.errorPrint("it is problem extract absolute path for current directory")
@@ -95,11 +95,11 @@ func (s *Shell) pwd(p chan string) {
 	p <- f
 }
 
-func (s *Shell) echo(args []string, p chan string) {
+func (s *shell) echo(args []string, p chan string) {
 	p <- args[0]
 }
 
-func (s *Shell) kill(args []string) {
+func (s *shell) kill(args []string) {
 	if len(args) == 0 {
 		fmt.Fprint(os.Stdout, "need to pass id number to kill\n")
 		return
@@ -122,7 +122,7 @@ func (s *Shell) kill(args []string) {
 	fmt.Fprint(os.Stdout, "process is successfuly killed\n")
 }
 
-func (s *Shell) ps(args []string, p chan string) {
+func (s *shell) ps(args []string, p chan string) {
 	// Я на mac os может тут хотели чтобы я читал файл /proc для линукс, но у меня как будто нет аналога пока
 	// или мне было сложновато найти аналог (sysctl может, но он какой то непонятный)
 	processList, err := proc.Processes()
@@ -138,7 +138,7 @@ func (s *Shell) ps(args []string, p chan string) {
 	p <- b.String()
 }
 
-func (s *Shell) getAbsPathToFile(p string) string {
+func (s *shell) getAbsPathToFile(p string) string {
 	path := pathlib.NewPath(p)
 	p = path.String()
 	if !path.IsAbsolute() {
@@ -149,7 +149,7 @@ func (s *Shell) getAbsPathToFile(p string) string {
 	return p
 }
 
-func (s *Shell) CreateTCP(host string, port int) {
+func (s *shell) createTCP(host string, port int) {
 	addr := net.TCPAddr{
 		IP:   net.ParseIP(host),
 		Port: port,
@@ -181,7 +181,7 @@ func (s *Shell) CreateTCP(host string, port int) {
 	}
 }
 
-func (s *Shell) CreateUDP(host string, port int) {
+func (s *shell) createUDP(host string, port int) {
 	addr := net.UDPAddr{
 		IP:   net.ParseIP(host),
 		Port: port,
@@ -202,7 +202,7 @@ func (s *Shell) CreateUDP(host string, port int) {
 	}
 }
 
-func (s *Shell) dialTCP(host string, port int) {
+func (s *shell) dialTCP(host string, port int) {
 	raddr := &net.TCPAddr{
 		IP:   net.ParseIP(host),
 		Port: port,
@@ -224,7 +224,7 @@ func (s *Shell) dialTCP(host string, port int) {
 	}
 }
 
-func (s *Shell) dialUDP(host string, port int) {
+func (s *shell) dialUDP(host string, port int) {
 	raddr := &net.UDPAddr{
 		IP:   net.ParseIP(host),
 		Port: port,
@@ -246,8 +246,8 @@ func (s *Shell) dialUDP(host string, port int) {
 	}
 }
 
-func (s *Shell) netcat(args []string) {
-	var toCreate, isUdp bool
+func (s *shell) netcat(args []string) {
+	var toCreate, isUDP bool
 	var host string = "127.0.0.1"
 	var port int
 	for idx, a := range args {
@@ -255,7 +255,7 @@ func (s *Shell) netcat(args []string) {
 		case "-l":
 			toCreate = true
 		case "-u":
-			isUdp = true
+			isUDP = true
 		case "-h":
 			if toCreate {
 				s.errorPrint("it is not allowed to pass host to the listening server")
@@ -281,13 +281,13 @@ func (s *Shell) netcat(args []string) {
 		}
 	}
 	if toCreate {
-		if !isUdp {
-			s.CreateTCP(host, port)
+		if !isUDP {
+			s.createTCP(host, port)
 		} else {
-			s.CreateUDP(host, port)
+			s.createUDP(host, port)
 		}
 	} else {
-		if !isUdp {
+		if !isUDP {
 			s.dialTCP(host, port)
 		} else {
 			s.dialUDP(host, port)
@@ -296,7 +296,7 @@ func (s *Shell) netcat(args []string) {
 
 }
 
-func (s *Shell) errorPrint(msg string) string {
+func (s *shell) errorPrint(msg string) string {
 	msg = strings.ToLower(msg)
 	msg = strings.TrimFunc(msg, func(r rune) bool {
 		if r == '\n' || r == ' ' {
@@ -308,7 +308,7 @@ func (s *Shell) errorPrint(msg string) string {
 	return msg
 }
 
-func (s *Shell) exec(args []string) {
+func (s *shell) exec(args []string) {
 	if len(args) == 0 {
 		fmt.Println("Wrong number of arguments for 'exec' command")
 		return
@@ -349,7 +349,7 @@ func (s *Shell) exec(args []string) {
 	}
 }
 
-func (s *Shell) readFromStdin() (string, error) {
+func (s *shell) readFromStdin() (string, error) {
 	reader := bufio.NewReader(s.stdin)
 	var line string
 	var err error
@@ -370,7 +370,7 @@ func (s *Shell) readFromStdin() (string, error) {
 	return line, nil
 }
 
-func (s *Shell) cat(args []string, p chan string) {
+func (s *shell) cat(args []string, p chan string) {
 	for _, v := range args {
 		if v == "" {
 			continue
@@ -387,7 +387,7 @@ func (s *Shell) cat(args []string, p chan string) {
 	p <- line
 }
 
-func (s *Shell) ReadCMDLine(f *os.File) ([]string, error) {
+func (s *shell) readCMDLine(f *os.File) ([]string, error) {
 	reader := bufio.NewReader(f)
 	line, err := reader.ReadString('\n')
 	if err != nil {
@@ -399,12 +399,12 @@ func (s *Shell) ReadCMDLine(f *os.File) ([]string, error) {
 	return pipes, nil
 }
 
-func (s *Shell) cmd(f *os.File, w *sync.WaitGroup) {
+func (s *shell) cmd(f *os.File, w *sync.WaitGroup) {
 	globalForForkW := sync.WaitGroup{}
 loop:
 	for {
 		fmt.Print(s.CurrentDir.String() + "$")
-		pipes, err := s.ReadCMDLine(f)
+		pipes, err := s.readCMDLine(f)
 		if err == io.EOF {
 			globalForForkW.Wait()
 			break
@@ -423,7 +423,7 @@ loop:
 				args = append(args, <-LastResult)
 			}
 			if arguments[len(arguments)-1] == "&" {
-				s.Fork(arguments[:len(arguments)-1], LastResult, &globalForForkW)
+				s.fork(arguments[:len(arguments)-1], LastResult, &globalForForkW)
 			} else {
 				switch arguments[0] {
 				case "cd":
@@ -460,7 +460,7 @@ loop:
 	w.Done()
 }
 
-func (s *Shell) Fork(arguments []string, p chan string, globalW *sync.WaitGroup) {
+func (s *shell) fork(arguments []string, p chan string, globalW *sync.WaitGroup) {
 	// executing the process as a child process
 	if len(arguments) == 0 {
 		s.errorPrint("wrong number of arguments for fork function\n")
@@ -516,9 +516,9 @@ func (s *Shell) Fork(arguments []string, p chan string, globalW *sync.WaitGroup)
 	}(globalW)
 }
 
-func NewShell(startPath string) *Shell {
+func newShell(startPath string) *shell {
 	p := pathlib.NewPath(startPath)
-	return &Shell{
+	return &shell{
 		CurrentDir:   p,
 		PreviousPath: p,
 		stdin:        os.Stdin,
@@ -528,7 +528,7 @@ func NewShell(startPath string) *Shell {
 }
 
 func main() {
-	shell := NewShell("./")
+	shell := newShell("./")
 	w := sync.WaitGroup{}
 	w.Add(1)
 	go shell.cmd(os.Stdin, &w)
