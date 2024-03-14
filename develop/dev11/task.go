@@ -1,5 +1,9 @@
 package main
 
+import (
+	"calendar/pkg"
+)
+
 /*
 === HTTP server ===
 
@@ -23,5 +27,13 @@ package main
 */
 
 func main() {
-
+	// init of storage
+	pkg.Storage = pkg.GetStorageOfEvents()
+	cfg := pkg.LoadConfig("config.json")
+	log, err := pkg.GetLogger()
+	if err != nil {
+		log.Fatalln("Problem with getting logger: %w", err)
+	}
+	s := pkg.ServerCalendar{Host: cfg.Host, Port: cfg.Port}
+	s.RunServer(log)
 }
