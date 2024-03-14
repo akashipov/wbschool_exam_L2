@@ -1,4 +1,4 @@
-// I know that it is bad practice to use utils name for file or package
+// Package pkg - I know that it is bad practice to use utils name for file or package
 // also it is bad decision to save everything in one folder. There is left only one day to do this task
 package pkg
 

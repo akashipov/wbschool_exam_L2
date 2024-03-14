@@ -26,6 +26,7 @@ func AllowedMethod(method string, logic func(http.ResponseWriter, *http.Request)
 			if e != nil {
 				fmt.Println(e)
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			_, e = w.Write(b)
 			if e != nil {
 				fmt.Println(e)

@@ -33,16 +33,19 @@ go-telnet --timeout=3s 1.1.1.1 123
 При подключении к несуществующему сервер, программа должна завершаться через timeout.
 */
 
+// TelnetArgs - telnet arguments
 type TelnetArgs struct {
 	host    string
 	port    int64
 	timeout int
 }
 
+// Telnet - main telnet struct
 type Telnet struct {
 	args *TelnetArgs
 }
 
+// ParseArgs - get arguments from command line for app
 func (t *Telnet) ParseArgs() {
 	time := flag.Int("timeout", 10, "Timeout for connection to host")
 	flag.Parse()
@@ -82,6 +85,7 @@ func (t *Telnet) Read(done chan struct{}, info chan string) {
 	}
 }
 
+// Connect - method to connection with timeout (or reconnection)
 func (t *Telnet) Connect(info chan string) *net.TCPConn {
 	raddr := &net.TCPAddr{
 		IP:   net.ParseIP(t.args.host),
@@ -106,6 +110,7 @@ loop:
 	return conn
 }
 
+// Send - connect and send message
 func (t *Telnet) Send(info chan string, done chan struct{}) {
 	defer close(done)
 	conn := t.Connect(info)
@@ -160,6 +165,7 @@ func (t *Telnet) run() {
 	fmt.Println("Telnet is Done")
 }
 
+// NewTelnet - constructor for telnet, parse arguments is included
 func NewTelnet() *Telnet {
 	t := Telnet{}
 	t.ParseArgs()

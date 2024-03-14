@@ -36,6 +36,7 @@ import (
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
+// Arguments - possibly argument to save it in program
 type Arguments struct {
 	filename string
 	k        int
@@ -48,6 +49,7 @@ type Arguments struct {
 	h        bool
 }
 
+// ReadFlags - read all arguments for 'sort' from the description
 func ReadFlags() Arguments {
 	k := flag.Int("k", 1, "Number of column for sorting")
 	f := flag.String("f", "", "file's name for scan")
@@ -66,6 +68,7 @@ func ReadFlags() Arguments {
 	}
 }
 
+// AppendToResult - add to result the list of lines with repeating for example
 func AppendToResult(m map[string][]string, key string, unique bool) []string {
 	r := make([]string, 0, len(m[key]))
 	o := make(map[string]string)
@@ -80,6 +83,7 @@ func AppendToResult(m map[string][]string, key string, unique bool) []string {
 	return r
 }
 
+// ReadLines - read content from the file to work with
 func ReadLines(isNumberColumn bool, columnNumber int, filename string) ([]string, map[string][]string, []string, []int, error) {
 	results := make([]string, 0)
 	m := make(map[string][]string)
@@ -129,6 +133,7 @@ func ReadLines(isNumberColumn bool, columnNumber int, filename string) ([]string
 	return results, m, toSortListStrs, toSortListInts, nil
 }
 
+// Sort - sorting algorithm for columns
 func Sort(args Arguments) (string, error) {
 	results, m, toSortListStrs, toSortListInts, err := ReadLines(args.n, args.k, args.filename)
 	if err != nil {

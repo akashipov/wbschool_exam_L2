@@ -168,7 +168,7 @@ func (s *shell) createTCP(host string, port int) {
 		defer conn.Close()
 		for {
 			p := make([]byte, 2048)
-			_, err = conn.Read(p)
+			n, err := conn.Read(p)
 			if err == io.EOF {
 				break
 			}
@@ -176,7 +176,7 @@ func (s *shell) createTCP(host string, port int) {
 				s.errorPrint(err.Error())
 				return
 			}
-			fmt.Fprintf(s.stdout, "Have got msg: '%s'\n", string(p))
+			fmt.Fprintf(s.stdout, "Have got msg: '%s'\n", string(p[:n]))
 		}
 	}
 }
@@ -193,12 +193,12 @@ func (s *shell) createUDP(host string, port int) {
 	}
 	for {
 		p := make([]byte, 2048)
-		_, d, err := srv.ReadFromUDP(p)
+		n, d, err := srv.ReadFromUDP(p)
 		if err != nil {
 			s.errorPrint(err.Error())
 			return
 		}
-		fmt.Fprintf(s.stdout, "Have got msg from '%s': '%s'\n", d, string(p))
+		fmt.Fprintf(s.stdout, "Have got msg from '%s': '%s'\n", d, string(p[:n]))
 	}
 }
 

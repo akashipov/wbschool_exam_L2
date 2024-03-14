@@ -64,7 +64,6 @@ func UpdateEvent(w http.ResponseWriter, request *http.Request) {
 // DeleteEvent - delete element from storage
 func DeleteEvent(w http.ResponseWriter, request *http.Request) {
 	defer func() {
-		fmt.Println("delete finished")
 		fmt.Printf("%+v\n", Storage)
 	}()
 	e, err := UnmarshalEvent(w, request)

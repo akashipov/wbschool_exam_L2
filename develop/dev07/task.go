@@ -38,6 +38,7 @@ start := time.Now()
 fmt.Printf(“fone after %v”, time.Since(start))
 */
 
+// Or - function from description to resolve the problem
 func Or(channels ...<-chan interface{}) <-chan struct{ channelNumber int } {
 	done := make(chan struct{ channelNumber int })
 	for idx, channel := range channels {
