@@ -145,20 +145,20 @@ func (t *Telnet) run() {
 	done := make(chan struct{})
 	info := make(chan string)
 	go func() {
+		defer w.Done()
 		t.Send(info, done)
-		w.Done()
 		fmt.Println("Sending is stopped")
 	}()
 	go t.Read(done, info)
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 	go func() {
+		defer w.Done()
 		select {
 		case sig := <-sigint:
 			fmt.Printf("\nSignal has got: '%v'\n", sig)
 		case <-done:
 		}
-		w.Done()
 		fmt.Println("Signal is stopped")
 	}()
 	w.Wait()

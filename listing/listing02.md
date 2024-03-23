@@ -7,15 +7,14 @@ import (
 	"fmt"
 )
 
-
+/// Нужно проработать получше!!!!
 func test() (x int) {
 	defer func() {
 		x++
-	}()
+	}() // func1
 	x = 1
 	return
 }
-
 
 func anotherTest() int {
 	var x int
@@ -29,7 +28,7 @@ func anotherTest() int {
 
 func main() {
 	fmt.Println(test())
-	fmt.Println(anotherTest())
+	// fmt.Println(anotherTest())
 }
 ```
 

@@ -400,6 +400,7 @@ func (s *shell) readCMDLine(f *os.File) ([]string, error) {
 }
 
 func (s *shell) cmd(f *os.File, w *sync.WaitGroup) {
+	defer w.Done()
 	globalForForkW := sync.WaitGroup{}
 loop:
 	for {
@@ -457,7 +458,6 @@ loop:
 			}
 		}
 	}
-	w.Done()
 }
 
 func (s *shell) fork(arguments []string, p chan string, globalW *sync.WaitGroup) {
@@ -484,10 +484,12 @@ func (s *shell) fork(arguments []string, p chan string, globalW *sync.WaitGroup)
 	fmt.Fprintf(s.stdout, "Child process with ID has been started: '%d'\n", cmd.Process.Pid)
 	globalW.Add(1)
 	go func(globalW *sync.WaitGroup) {
+		defer globalW.Done()
 		out := make([]byte, 1024)
 		w := sync.WaitGroup{}
 		w.Add(1)
 		go func() {
+			defer w.Done()
 			b := strings.Builder{}
 			for {
 				n, err := stdout.Read(out)
@@ -506,13 +508,11 @@ func (s *shell) fork(arguments []string, p chan string, globalW *sync.WaitGroup)
 				}
 			}
 			p <- b.String()
-			w.Done()
 		}()
 
 		w.Wait()
 		fmt.Fprintf(s.stdout, "Process with id '%d' is finished\n", cmd.Process.Pid)
 		cmd.Wait()
-		globalW.Done()
 	}(globalW)
 }
 
